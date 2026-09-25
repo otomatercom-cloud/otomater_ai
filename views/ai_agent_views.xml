@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ai_agent_list" model="ir.ui.view">
+        <field name="name">ai.agent.list</field>
+        <field name="model">ai.agent</field>
+        <field name="arch" type="xml">
+            <list decoration-bf="is_supervisor">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="keywords"/>
+                <field name="is_supervisor"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_agent_form" model="ir.ui.view">
+        <field name="name">ai.agent.form</field>
+        <field name="model">ai.agent</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="is_supervisor"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="keywords" invisible="is_supervisor"
+                                   placeholder="employee, leave, attendance, payroll"/>
+                        </group>
+                    </group>
+                    <group string="Persona / System Prompt">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ai_agent" model="ir.actions.act_window">
+        <field name="name">Agents</field>
+        <field name="res_model">ai.agent</field>
+        <field name="view_mode">list,form</field>
+        <field name="help">Specialized AI personas. The Supervisor Agent is used whenever no other agent's keywords match the user's message.</field>
+    </record>
+</odoo>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ai_conversation_list" model="ir.ui.view">
+        <field name="name">ai.conversation.list</field>
+        <field name="model">ai.conversation</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="not active" decoration-bf="is_pinned">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="provider_id"/>
+                <field name="message_count"/>
+                <field name="total_tokens"/>
+                <field name="total_cost" optional="show"/>
+                <field name="is_pinned"/>
+                <field name="write_date" string="Last Activity"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_conversation_form" model="ir.ui.view">
+        <field name="name">ai.conversation.form</field>
+        <field name="model">ai.conversation</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="provider_id"/>
+                        </group>
+                        <group>
+                            <field name="message_count"/>
+                            <field name="total_tokens"/>
+                            <field name="total_cost"/>
+                            <field name="is_pinned"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Messages">
+                            <field name="message_ids" readonly="1">
+                                <list>
+                                    <field name="role"/>
+                                    <field name="content"/>
+                                    <field name="tokens_input"/>
+                                    <field name="tokens_output"/>
+                                    <field name="status"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ai_conversation_search" model="ir.ui.view">
+        <field name="name">ai.conversation.search</field>
+        <field name="model">ai.conversation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="provider_id"/>
+                <filter string="Pinned" name="pinned" domain="[('is_pinned', '=', True)]"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Group By User" name="group_user" context="{'group_by': 'user_id'}"/>
+                <filter string="Group By Provider" name="group_provider" context="{'group_by': 'provider_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ai_conversation" model="ir.actions.act_window">
+        <field name="name">AI Conversations</field>
+        <field name="res_model">ai.conversation</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_user': 0}</field>
+        <field name="help">Every conversation held with the Otomater AI assistant, with full message history, token usage and cost.</field>
+    </record>
+</odoo>

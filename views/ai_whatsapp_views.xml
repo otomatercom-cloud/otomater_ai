@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Bot configuration (admin) -->
+    <record id="view_ai_whatsapp_config_list" model="ir.ui.view">
+        <field name="name">ai.whatsapp.config.list</field>
+        <field name="model">ai.whatsapp.config</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="phone_number_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_whatsapp_config_form" model="ir.ui.view">
+        <field name="name">ai.whatsapp.config.form</field>
+        <field name="model">ai.whatsapp.config</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <field name="phone_number_id"/>
+                        <field name="access_token" password="True"/>
+                        <field name="verify_token"/>
+                        <field name="active"/>
+                    </group>
+                    <group string="Last Error" invisible="not last_error">
+                        <field name="last_error" nolabel="1" readonly="1"/>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        Webhook URL to enter in Meta's dashboard: &lt;your public base URL&gt;/otomater_ai/whatsapp/webhook
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ai_whatsapp_config" model="ir.actions.act_window">
+        <field name="name">WhatsApp Business</field>
+        <field name="res_model">ai.whatsapp.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="help">Configure your Meta WhatsApp Business Cloud API credentials, then register the webhook URL shown here in Meta's dashboard.</field>
+    </record>
+
+    <!-- Per-user link (My WhatsApp) -->
+    <record id="view_ai_whatsapp_user_list" model="ir.ui.view">
+        <field name="name">ai.whatsapp.user.list</field>
+        <field name="model">ai.whatsapp.user</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="user_id"/>
+                <field name="wa_number"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_whatsapp_user_form" model="ir.ui.view">
+        <field name="name">ai.whatsapp.user.form</field>
+        <field name="model">ai.whatsapp.user</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_link_code" type="object"
+                            string="Generate Link Code" class="btn-primary"
+                            invisible="wa_number"/>
+                    <button name="action_unlink_whatsapp" type="object"
+                            string="Unlink" invisible="not wa_number"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="user_id"/>
+                        <field name="wa_number" readonly="1"/>
+                        <field name="link_code" readonly="1" invisible="not link_code"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ai_whatsapp_user" model="ir.actions.act_window">
+        <field name="name">My WhatsApp</field>
+        <field name="res_model">ai.whatsapp.user</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'default_user_id': uid}</field>
+        <field name="help">Link your WhatsApp number to chat with Otomater AI directly from WhatsApp.</field>
+    </record>
+</odoo>

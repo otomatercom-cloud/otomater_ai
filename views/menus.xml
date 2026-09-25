@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_otomater_ai_root"
+              name="Otomater AI"
+              sequence="10"
+              groups="group_otomater_ai_user"/>
+
+    <menuitem id="menu_ai_dashboard"
+              name="Dashboard"
+              parent="menu_otomater_ai_root"
+              action="action_ai_dashboard"
+              sequence="10"/>
+
+    <menuitem id="menu_ai_chat"
+              name="AI Chat"
+              parent="menu_otomater_ai_root"
+              action="action_ai_chat"
+              sequence="20"/>
+
+    <menuitem id="menu_ai_conversation"
+              name="AI Conversations"
+              parent="menu_otomater_ai_root"
+              action="action_ai_conversation"
+              sequence="30"/>
+
+    <menuitem id="menu_ai_pending_action"
+              name="Pending Actions"
+              parent="menu_otomater_ai_root"
+              action="action_ai_pending_action"
+              sequence="40"/>
+
+    <menuitem id="menu_ai_prompt"
+              name="Prompt Library"
+              parent="menu_otomater_ai_root"
+              action="action_ai_prompt"
+              sequence="50"/>
+
+    <menuitem id="menu_ai_knowledge_document"
+              name="Knowledge Base"
+              parent="menu_otomater_ai_root"
+              action="action_ai_knowledge_document"
+              sequence="60"/>
+
+    <menuitem id="menu_ai_api_key"
+              name="API Keys"
+              parent="menu_otomater_ai_root"
+              action="action_ai_api_key"
+              sequence="70"/>
+
+    <menuitem id="menu_ai_telegram_user"
+              name="My Telegram"
+              parent="menu_otomater_ai_root"
+              action="action_ai_telegram_user"
+              sequence="80"/>
+
+    <menuitem id="menu_ai_whatsapp_user"
+              name="My WhatsApp"
+              parent="menu_otomater_ai_root"
+              action="action_ai_whatsapp_user"
+              sequence="85"/>
+
+    <menuitem id="menu_ai_settings_root"
+              name="AI Settings"
+              parent="menu_otomater_ai_root"
+              groups="group_otomater_ai_admin"
+              sequence="90"/>
+
+    <menuitem id="menu_ai_provider"
+              name="Providers"
+              parent="menu_ai_settings_root"
+              action="action_ai_provider"
+              sequence="10"/>
+
+    <menuitem id="menu_ai_agent"
+              name="Agents"
+              parent="menu_ai_settings_root"
+              action="action_ai_agent"
+              sequence="15"/>
+
+    <menuitem id="menu_ai_scheduled_agent"
+              name="Scheduled Agents"
+              parent="menu_ai_settings_root"
+              action="action_ai_scheduled_agent"
+              sequence="18"/>
+
+    <menuitem id="menu_ai_audit_log"
+              name="Audit Logs"
+              parent="menu_ai_settings_root"
+              action="action_ai_audit_log"
+              sequence="20"/>
+
+    <menuitem id="menu_ai_telegram_config"
+              name="Telegram Bot"
+              parent="menu_ai_settings_root"
+              action="action_ai_telegram_config"
+              sequence="30"/>
+
+    <menuitem id="menu_ai_whatsapp_config"
+              name="WhatsApp Business"
+              parent="menu_ai_settings_root"
+              action="action_ai_whatsapp_config"
+              sequence="40"/>
+</odoo>

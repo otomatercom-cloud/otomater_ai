@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ai_api_key_list" model="ir.ui.view">
+        <field name="name">ai.api.key.list</field>
+        <field name="model">ai.api.key</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="not active">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="key"/>
+                <field name="last_used"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_api_key_form" model="ir.ui.view">
+        <field name="name">ai.api.key.form</field>
+        <field name="model">ai.api.key</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_regenerate" type="object" string="Regenerate Key"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <field name="user_id"/>
+                        <field name="key" readonly="1"/>
+                        <field name="last_used" readonly="1"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ai_api_key" model="ir.actions.act_window">
+        <field name="name">API Keys</field>
+        <field name="res_model">ai.api.key</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'default_user_id': uid}</field>
+        <field name="help">Generate a personal API key to call the Otomater AI REST API (/otomater_ai/api/...). Calls made with a key run with exactly that key's user's permissions.</field>
+    </record>
+</odoo>

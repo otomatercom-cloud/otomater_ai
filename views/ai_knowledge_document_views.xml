@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ai_knowledge_document_list" model="ir.ui.view">
+        <field name="name">ai.knowledge.document.list</field>
+        <field name="model">ai.knowledge.document</field>
+        <field name="arch" type="xml">
+            <list decoration-success="status == 'indexed'" decoration-danger="status == 'error'"
+                  decoration-muted="status == 'draft'">
+                <field name="name"/>
+                <field name="source_type"/>
+                <field name="category"/>
+                <field name="chunk_count"/>
+                <field name="status"/>
+                <field name="last_indexed"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_knowledge_document_form" model="ir.ui.view">
+        <field name="name">ai.knowledge.document.form</field>
+        <field name="model">ai.knowledge.document</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_process" type="object" string="Process"
+                            class="btn-primary"/>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,processing,indexed,error"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="source_type"/>
+                            <field name="file" filename="file_name" invisible="source_type != 'file'"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="url" invisible="source_type != 'url'"/>
+                            <field name="category"/>
+                        </group>
+                        <group>
+                            <field name="chunk_count"/>
+                            <field name="last_indexed"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Content" invisible="source_type != 'note'">
+                        <field name="content_text" nolabel="1" placeholder="Paste or type the policy/FAQ text here..."/>
+                    </group>
+                    <group string="Error" invisible="not error_message">
+                        <field name="error_message" nolabel="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Extracted Text" invisible="source_type == 'note'">
+                            <field name="content_text" nolabel="1" readonly="1"/>
+                        </page>
+                        <page string="Chunks">
+                            <field name="chunk_ids" readonly="1">
+                                <list>
+                                    <field name="sequence"/>
+                                    <field name="content"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ai_knowledge_document_search" model="ir.ui.view">
+        <field name="name">ai.knowledge.document.search</field>
+        <field name="model">ai.knowledge.document</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="category"/>
+                <filter string="Indexed" name="indexed" domain="[('status', '=', 'indexed')]"/>
+                <filter string="Errors" name="errors" domain="[('status', '=', 'error')]"/>
+                <separator/>
+                <filter string="Group By Source Type" name="group_source" context="{'group_by': 'source_type'}"/>
+                <filter string="Group By Status" name="group_status" context="{'group_by': 'status'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ai_knowledge_document" model="ir.actions.act_window">
+        <field name="name">Knowledge Base</field>
+        <field name="res_model">ai.knowledge.document</field>
+        <field name="view_mode">list,form</field>
+        <field name="help">Upload files, paste notes, or index website URLs so the AI can answer questions grounded in your own documents.</field>
+    </record>
+</odoo>

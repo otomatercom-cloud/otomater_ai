@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ai_audit_log_list" model="ir.ui.view">
+        <field name="name">ai.audit.log.list</field>
+        <field name="model">ai.audit.log</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="status == 'error'" decoration-success="status == 'success'" create="0" edit="0" delete="0">
+                <field name="create_date" string="Timestamp"/>
+                <field name="user_id"/>
+                <field name="provider_id"/>
+                <field name="tokens_input"/>
+                <field name="tokens_output"/>
+                <field name="cost"/>
+                <field name="execution_time"/>
+                <field name="status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_audit_log_form" model="ir.ui.view">
+        <field name="name">ai.audit.log.form</field>
+        <field name="model">ai.audit.log</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="conversation_id"/>
+                            <field name="provider_id"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="tokens_input"/>
+                            <field name="tokens_output"/>
+                            <field name="cost"/>
+                            <field name="execution_time"/>
+                        </group>
+                    </group>
+                    <group string="Prompt">
+                        <field name="prompt" nolabel="1"/>
+                    </group>
+                    <group string="Response">
+                        <field name="response" nolabel="1"/>
+                    </group>
+                    <group string="Error" invisible="not error_message">
+                        <field name="error_message" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ai_audit_log_search" model="ir.ui.view">
+        <field name="name">ai.audit.log.search</field>
+        <field name="model">ai.audit.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="user_id"/>
+                <field name="provider_id"/>
+                <filter string="Errors Only" name="errors_only" domain="[('status', '=', 'error')]"/>
+                <separator/>
+                <filter string="Group By User" name="group_user" context="{'group_by': 'user_id'}"/>
+                <filter string="Group By Provider" name="group_provider" context="{'group_by': 'provider_id'}"/>
+                <filter string="Group By Status" name="group_status" context="{'group_by': 'status'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ai_audit_log" model="ir.actions.act_window">
+        <field name="name">Audit Logs</field>
+        <field name="res_model">ai.audit.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="help">Immutable record of every AI request: user, prompt, response, provider, tokens, cost, execution time and status.</field>
+    </record>
+</odoo>

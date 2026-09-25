@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_otomater_ai_user" model="res.groups">
+            <field name="name">Otomater AI / User</field>
+        </record>
+
+        <record id="group_otomater_ai_admin" model="res.groups">
+            <field name="name">Otomater AI / Administrator</field>
+            <field name="implied_ids" eval="[(4, ref('group_otomater_ai_user'))]"/>
+        </record>
+    </data>
+</odoo>

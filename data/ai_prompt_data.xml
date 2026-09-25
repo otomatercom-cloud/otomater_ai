@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="prompt_hr_absentees" model="ai.prompt">
+            <field name="name">Who's absent today</field>
+            <field name="category">hr</field>
+            <field name="agent_id" ref="agent_attendance"/>
+            <field name="content">Show me employees who are absent today.</field>
+        </record>
+
+        <record id="prompt_hr_leave_pending" model="ai.prompt">
+            <field name="name">Pending leave requests</field>
+            <field name="category">hr</field>
+            <field name="agent_id" ref="agent_leave"/>
+            <field name="content">How many leave requests are waiting for approval right now?</field>
+        </record>
+
+        <record id="prompt_crm_new_leads" model="ai.prompt">
+            <field name="name">New leads this week</field>
+            <field name="category">crm</field>
+            <field name="agent_id" ref="agent_crm"/>
+            <field name="content">Show me the leads created in the last 7 days, most recent first.</field>
+        </record>
+
+        <record id="prompt_sales_last_orders" model="ai.prompt">
+            <field name="name">Recent sales orders</field>
+            <field name="category">sales</field>
+            <field name="content">Show me the last 10 sales orders with their totals and status.</field>
+        </record>
+
+        <record id="prompt_finance_unpaid_invoices" model="ai.prompt">
+            <field name="name">Unpaid invoices</field>
+            <field name="category">finance</field>
+            <field name="agent_id" ref="agent_accounting"/>
+            <field name="content">How many customer invoices are still unpaid, and what's the total outstanding amount?</field>
+        </record>
+
+        <record id="prompt_inventory_low_stock" model="ai.prompt">
+            <field name="name">Low stock check</field>
+            <field name="category">inventory</field>
+            <field name="agent_id" ref="agent_inventory"/>
+            <field name="content">Which products currently have zero or negative stock on hand?</field>
+        </record>
+
+        <record id="prompt_marketing_campaign_idea" model="ai.prompt">
+            <field name="name">Draft a follow-up message</field>
+            <field name="category">marketing</field>
+            <field name="agent_id" ref="agent_marketing"/>
+            <field name="content">Draft a short, friendly follow-up message for a lead who hasn't responded in a week.</field>
+        </record>
+
+        <record id="prompt_support_open_tickets" model="ai.prompt">
+            <field name="name">Open support tickets</field>
+            <field name="category">support</field>
+            <field name="content">How many support tickets are currently open, grouped by priority?</field>
+        </record>
+
+        <record id="prompt_sysadmin_recent_users" model="ai.prompt">
+            <field name="name">Recently created users</field>
+            <field name="category">system_admin</field>
+            <field name="agent_id" ref="agent_sysadmin"/>
+            <field name="content">Show me the 10 most recently created user accounts.</field>
+        </record>
+
+    </data>
+</odoo>

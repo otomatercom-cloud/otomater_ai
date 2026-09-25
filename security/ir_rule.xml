@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="rule_ai_conversation_own" model="ir.rule">
+            <field name="name">AI Conversation: own records only</field>
+            <field name="model_id" ref="model_ai_conversation"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_user'))]"/>
+        </record>
+
+        <record id="rule_ai_conversation_admin" model="ir.rule">
+            <field name="name">AI Conversation: administrators see all</field>
+            <field name="model_id" ref="model_ai_conversation"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_admin'))]"/>
+        </record>
+
+        <record id="rule_ai_audit_log_admin_only" model="ir.rule">
+            <field name="name">AI Audit Log: administrators only</field>
+            <field name="model_id" ref="model_ai_audit_log"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_admin'))]"/>
+        </record>
+
+        <record id="rule_ai_pending_action_own" model="ir.rule">
+            <field name="name">AI Pending Action: own records only</field>
+            <field name="model_id" ref="model_ai_pending_action"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_user'))]"/>
+        </record>
+
+        <record id="rule_ai_pending_action_admin" model="ir.rule">
+            <field name="name">AI Pending Action: administrators see all</field>
+            <field name="model_id" ref="model_ai_pending_action"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_admin'))]"/>
+        </record>
+
+        <record id="rule_ai_api_key_own" model="ir.rule">
+            <field name="name">AI API Key: own records only</field>
+            <field name="model_id" ref="model_ai_api_key"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_user'))]"/>
+        </record>
+
+        <record id="rule_ai_api_key_admin" model="ir.rule">
+            <field name="name">AI API Key: administrators see all</field>
+            <field name="model_id" ref="model_ai_api_key"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_admin'))]"/>
+        </record>
+
+        <record id="rule_ai_telegram_user_own" model="ir.rule">
+            <field name="name">AI Telegram Link: own records only</field>
+            <field name="model_id" ref="model_ai_telegram_user"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_user'))]"/>
+        </record>
+
+        <record id="rule_ai_telegram_user_admin" model="ir.rule">
+            <field name="name">AI Telegram Link: administrators see all</field>
+            <field name="model_id" ref="model_ai_telegram_user"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_admin'))]"/>
+        </record>
+
+        <record id="rule_ai_whatsapp_user_own" model="ir.rule">
+            <field name="name">AI WhatsApp Link: own records only</field>
+            <field name="model_id" ref="model_ai_whatsapp_user"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_user'))]"/>
+        </record>
+
+        <record id="rule_ai_whatsapp_user_admin" model="ir.rule">
+            <field name="name">AI WhatsApp Link: administrators see all</field>
+            <field name="model_id" ref="model_ai_whatsapp_user"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_otomater_ai_admin'))]"/>
+        </record>
+    </data>
+</odoo>

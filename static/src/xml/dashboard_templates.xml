@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="otomater_ai.DashboardComponent" owl="1">
+        <div class="o_otomater_ai_dashboard">
+            <h2 class="o_otomater_ai_dashboard_title">Otomater AI - Dashboard</h2>
+            <div t-if="state.loading" class="o_otomater_ai_dashboard_loading">Loading...</div>
+            <div t-else="" class="o_otomater_ai_dashboard_grid">
+                <div class="o_otomater_ai_kpi">
+                    <div class="o_otomater_ai_kpi_value"><t t-esc="state.data.total_requests"/></div>
+                    <div class="o_otomater_ai_kpi_label">Total AI Requests</div>
+                </div>
+                <div class="o_otomater_ai_kpi">
+                    <div class="o_otomater_ai_kpi_value"><t t-esc="state.data.today_requests"/></div>
+                    <div class="o_otomater_ai_kpi_label">Requests Today</div>
+                </div>
+                <div class="o_otomater_ai_kpi">
+                    <div class="o_otomater_ai_kpi_value"><t t-esc="state.data.today_conversations"/></div>
+                    <div class="o_otomater_ai_kpi_label">Today's Conversations</div>
+                </div>
+                <div class="o_otomater_ai_kpi">
+                    <div class="o_otomater_ai_kpi_value"><t t-esc="state.data.active_users"/></div>
+                    <div class="o_otomater_ai_kpi_label">Active Users</div>
+                </div>
+                <div class="o_otomater_ai_kpi">
+                    <div class="o_otomater_ai_kpi_value"><t t-esc="state.data.avg_response_time"/>s</div>
+                    <div class="o_otomater_ai_kpi_label">Avg Response Time</div>
+                </div>
+                <div class="o_otomater_ai_kpi">
+                    <div class="o_otomater_ai_kpi_value"><t t-esc="state.data.total_tokens"/></div>
+                    <div class="o_otomater_ai_kpi_label">AI Token Usage</div>
+                </div>
+                <div class="o_otomater_ai_kpi">
+                    <div class="o_otomater_ai_kpi_value"><t t-esc="state.data.total_cost"/></div>
+                    <div class="o_otomater_ai_kpi_label">API Cost</div>
+                </div>
+                <div class="o_otomater_ai_kpi o_otomater_ai_kpi_success">
+                    <div class="o_otomater_ai_kpi_value"><t t-esc="state.data.success_rate"/>%</div>
+                    <div class="o_otomater_ai_kpi_label">AI Success Rate</div>
+                </div>
+                <div class="o_otomater_ai_kpi o_otomater_ai_kpi_danger">
+                    <div class="o_otomater_ai_kpi_value"><t t-esc="state.data.failed_requests"/></div>
+                    <div class="o_otomater_ai_kpi_label">Failed Requests</div>
+                </div>
+            </div>
+            <p class="o_otomater_ai_dashboard_note">
+                Most-used-modules breakdown, pending-task tracking and full charts
+                arrive in Phase 2 once dynamic tool execution is in place.
+            </p>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="otomater_ai.ChatComponent" owl="1">
+        <div class="o_otomater_ai_chat">
+            <div class="o_otomater_ai_chat_header">
+                <span class="o_otomater_ai_chat_title">
+                    <t t-esc="state.conversationName || 'Otomater AI'"/>
+                </span>
+            </div>
+            <div class="o_otomater_ai_chat_messages" t-ref="messagesContainer">
+                <div t-if="!state.messages.length" class="o_otomater_ai_chat_empty">
+                    Ask me to do something in your ERP - e.g. "show today's attendance"
+                    or "create a leave request".
+                </div>
+                <t t-foreach="state.messages" t-as="msg" t-key="msg.id">
+                    <div t-if="msg.role === 'assistant' &amp;&amp; msg.agentName" class="o_otomater_ai_agent_label">
+                        <t t-esc="msg.agentName"/>
+                    </div>
+                    <div t-attf-class="o_otomater_ai_bubble o_otomater_ai_bubble_{{msg.role}} {{msg.status === 'error' ? 'o_otomater_ai_bubble_error' : ''}} {{msg.messageType === 'confirmation' ? 'o_otomater_ai_bubble_confirmation' : ''}}">
+                        <t t-esc="msg.content"/>
+                        <div t-if="msg.messageType === 'confirmation' &amp;&amp; !msg.resolved" class="o_otomater_ai_confirm_row">
+                            <button class="btn btn-sm btn-primary" t-on-click="() => this.approvePending(msg)" t-att-disabled="msg.resolving">
+                                Approve
+                            </button>
+                            <button class="btn btn-sm btn-secondary" t-on-click="() => this.rejectPending(msg)" t-att-disabled="msg.resolving">
+                                Reject
+                            </button>
+                        </div>
+                    </div>
+                </t>
+                <div t-if="state.sending" class="o_otomater_ai_typing">
+                    Otomater AI is thinking...
+                </div>
+            </div>
+            <div class="o_otomater_ai_chat_input_row">
+                <textarea
+                    t-ref="chatInput"
+                    class="o_otomater_ai_chat_input"
+                    placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+                    t-model="state.draft"
+                    t-on-keydown="onInputKeydown"
+                />
+                <button
+                    class="btn btn-primary o_otomater_ai_send_btn"
+                    t-on-click="sendMessage"
+                    t-att-disabled="state.sending">
+                    Send
+                </button>
+            </div>
+        </div>
+    </t>
+
+</templates>

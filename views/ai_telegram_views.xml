@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Bot configuration (admin) -->
+    <record id="view_ai_telegram_config_list" model="ir.ui.view">
+        <field name="name">ai.telegram.config.list</field>
+        <field name="model">ai.telegram.config</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="last_update_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_telegram_config_form" model="ir.ui.view">
+        <field name="name">ai.telegram.config.form</field>
+        <field name="model">ai.telegram.config</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_set_webhook" type="object" string="Set Webhook"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <field name="bot_token" password="True"/>
+                        <field name="webhook_secret" readonly="1"/>
+                        <field name="active"/>
+                        <field name="last_update_id" readonly="1"/>
+                    </group>
+                    <group string="Last Error" invisible="not last_error">
+                        <field name="last_error" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ai_telegram_config" model="ir.actions.act_window">
+        <field name="name">Telegram Bot</field>
+        <field name="res_model">ai.telegram.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="help">Configure your Telegram bot token, then either set a webhook (needs a public HTTPS URL) or enable the polling cron under Settings > Technical > Scheduled Actions for local/dev setups.</field>
+    </record>
+
+    <!-- Per-user link (My Telegram) -->
+    <record id="view_ai_telegram_user_list" model="ir.ui.view">
+        <field name="name">ai.telegram.user.list</field>
+        <field name="model">ai.telegram.user</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="user_id"/>
+                <field name="chat_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_telegram_user_form" model="ir.ui.view">
+        <field name="name">ai.telegram.user.form</field>
+        <field name="model">ai.telegram.user</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_link_code" type="object"
+                            string="Generate Link Code" class="btn-primary"
+                            invisible="chat_id"/>
+                    <button name="action_unlink_telegram" type="object"
+                            string="Unlink" invisible="not chat_id"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="user_id"/>
+                        <field name="chat_id" readonly="1"/>
+                        <field name="link_code" readonly="1" invisible="not link_code"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ai_telegram_user" model="ir.actions.act_window">
+        <field name="name">My Telegram</field>
+        <field name="res_model">ai.telegram.user</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'default_user_id': uid}</field>
+        <field name="help">Link your Telegram account to chat with Otomater AI directly from Telegram.</field>
+    </record>
+</odoo>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ai_scheduled_agent_list" model="ir.ui.view">
+        <field name="name">ai.scheduled.agent.list</field>
+        <field name="model">ai.scheduled.agent</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="last_status == 'error'" decoration-muted="not active">
+                <field name="name"/>
+                <field name="run_as_user_id"/>
+                <field name="interval_number"/>
+                <field name="interval_type"/>
+                <field name="last_run"/>
+                <field name="last_status"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_scheduled_agent_form" model="ir.ui.view">
+        <field name="name">ai.scheduled.agent.form</field>
+        <field name="model">ai.scheduled.agent</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_run_now" type="object" string="Run Now" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="agent_id"/>
+                            <field name="run_as_user_id"/>
+                            <field name="recipient_user_ids" widget="many2many_tags"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="interval_number"/>
+                            <field name="interval_type"/>
+                            <field name="last_run"/>
+                            <field name="last_status"/>
+                        </group>
+                    </group>
+                    <group string="Prompt">
+                        <field name="prompt" nolabel="1"/>
+                    </group>
+                    <group string="Last Result" invisible="not last_result">
+                        <field name="last_result" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ai_scheduled_agent" model="ir.actions.act_window">
+        <field name="name">Scheduled Agents</field>
+        <field name="res_model">ai.scheduled.agent</field>
+        <field name="view_mode">list,form</field>
+        <field name="help">Run a fixed prompt on a recurring schedule. Destructive actions it proposes still require manual approval under Pending Actions - nothing runs unattended.</field>
+    </record>
+</odoo>

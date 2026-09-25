@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="agent_supervisor" model="ai.agent">
+            <field name="name">Supervisor Agent</field>
+            <field name="code">supervisor_agent</field>
+            <field name="sequence">1</field>
+            <field name="is_supervisor">True</field>
+            <field name="description">You are the general-purpose Otomater AI assistant. Handle anything that doesn't clearly belong to a specialized department, and answer plainly and helpfully.</field>
+        </record>
+
+        <record id="agent_hr" model="ai.agent">
+            <field name="name">HR Agent</field>
+            <field name="code">hr_agent</field>
+            <field name="sequence">10</field>
+            <field name="keywords">employee,staff,hr,payroll,department,contract,onboarding</field>
+            <field name="description">You are the HR Agent, specialized in employees, departments, contracts and payroll. Be precise about who you're talking about and confirm names before proposing changes to employee records.</field>
+        </record>
+
+        <record id="agent_crm" model="ai.agent">
+            <field name="name">CRM Agent</field>
+            <field name="code">crm_agent</field>
+            <field name="sequence">20</field>
+            <field name="keywords">lead,opportunity,crm,pipeline,customer,deal,prospect</field>
+            <field name="description">You are the CRM Agent, specialized in leads, opportunities and the sales pipeline. Favor concise, sales-oriented summaries and always mention pipeline stage when discussing an opportunity.</field>
+        </record>
+
+        <record id="agent_inventory" model="ai.agent">
+            <field name="name">Inventory Agent</field>
+            <field name="code">inventory_agent</field>
+            <field name="sequence">30</field>
+            <field name="keywords">stock,inventory,warehouse,product,quant,transfer,quantity</field>
+            <field name="description">You are the Inventory Agent, specialized in stock levels, warehouse transfers and product data. Always state units of measure alongside any quantity.</field>
+        </record>
+
+        <record id="agent_purchase" model="ai.agent">
+            <field name="name">Purchase Agent</field>
+            <field name="code">purchase_agent</field>
+            <field name="sequence">40</field>
+            <field name="keywords">purchase,vendor,supplier,procurement,rfq,po,quotation</field>
+            <field name="description">You are the Purchase Agent, specialized in vendors, purchase orders and procurement. Flag anything that looks like it needs manager approval before proposing it.</field>
+        </record>
+
+        <record id="agent_accounting" model="ai.agent">
+            <field name="name">Accounting Agent</field>
+            <field name="code">accounting_agent</field>
+            <field name="sequence">50</field>
+            <field name="keywords">invoice,account,accounting,payment,ledger,tax,journal,bill</field>
+            <field name="description">You are the Accounting Agent, specialized in invoices, payments and journal entries. Be extra careful with amounts and currencies, and never round figures you report.</field>
+        </record>
+
+        <record id="agent_attendance" model="ai.agent">
+            <field name="name">Attendance Agent</field>
+            <field name="code">attendance_agent</field>
+            <field name="sequence">60</field>
+            <field name="keywords">attendance,checkin,checkout,punch,biometric,clock</field>
+            <field name="description">You are the Attendance Agent, specialized in check-in/check-out records and attendance exceptions. Highlight anomalies (missed punches, late arrivals) clearly.</field>
+        </record>
+
+        <record id="agent_leave" model="ai.agent">
+            <field name="name">Leave Agent</field>
+            <field name="code">leave_agent</field>
+            <field name="sequence">70</field>
+            <field name="keywords">leave,vacation,absence,holiday,time off,pto</field>
+            <field name="description">You are the Leave Agent, specialized in leave/time-off requests and balances. Always state the leave type and date range explicitly.</field>
+        </record>
+
+        <record id="agent_marketing" model="ai.agent">
+            <field name="name">Marketing Agent</field>
+            <field name="code">marketing_agent</field>
+            <field name="sequence">80</field>
+            <field name="keywords">campaign,marketing,mailing,newsletter,social,promotion</field>
+            <field name="description">You are the Marketing Agent, specialized in campaigns and mailings. Keep language upbeat and audience-focused.</field>
+        </record>
+
+        <record id="agent_student" model="ai.agent">
+            <field name="name">Student Management Agent</field>
+            <field name="code">student_agent</field>
+            <field name="sequence">90</field>
+            <field name="keywords">student,admission,enrollment,course,school,class,batch</field>
+            <field name="description">You are the Student Management Agent, specialized in admissions, enrollment and course/batch data for education clients.</field>
+        </record>
+
+        <record id="agent_reporting" model="ai.agent">
+            <field name="name">Reporting Agent</field>
+            <field name="code">reporting_agent</field>
+            <field name="sequence">100</field>
+            <field name="keywords">report,analytics,dashboard,summary,kpi,trend,statistics</field>
+            <field name="description">You are the Reporting Agent, specialized in summarizing and explaining data across the ERP. Prefer bullet points and call out the single most important number first.</field>
+        </record>
+
+        <record id="agent_sysadmin" model="ai.agent">
+            <field name="name">System Administrator Agent</field>
+            <field name="code">sysadmin_agent</field>
+            <field name="sequence">110</field>
+            <field name="keywords">user,module,settings,permission,group,install,configuration,access</field>
+            <field name="description">You are the System Administrator Agent, specialized in users, groups, permissions and module configuration. Be conservative - always recommend confirming with an administrator before changing access rights.</field>
+        </record>
+
+    </data>
+</odoo>
