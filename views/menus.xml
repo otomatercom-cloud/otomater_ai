@@ -71,6 +71,12 @@
               action="action_ai_provider"
               sequence="10"/>
 
+    <menuitem id="menu_ai_model_mapping"
+              name="Model Mapping"
+              parent="menu_ai_settings_root"
+              action="action_ai_model_mapping"
+              sequence="12"/>
+
     <menuitem id="menu_ai_agent"
               name="Agents"
               parent="menu_ai_settings_root"

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ai_model_mapping_list" model="ir.ui.view">
+        <field name="name">ai.model.mapping.list</field>
+        <field name="model">ai.model.mapping</field>
+        <field name="arch" type="xml">
+            <list>
+                <header>
+                    <button name="action_seed_defaults" type="object" string="Load Suggested Mappings" display="always"/>
+                </header>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="model_id"/>
+                <field name="aliases"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_model_mapping_form" model="ir.ui.view">
+        <field name="name">ai.model.mapping.form</field>
+        <field name="model">ai.model.mapping</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" placeholder="e.g. Leads"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="model_id" options="{'no_create': True}"/>
+                            <field name="model_name"/>
+                            <field name="aliases" placeholder="lead, leads, enquiry"/>
+                        </group>
+                        <group>
+                            <field name="date_field_id" options="{'no_create': True}"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Default Fields to Show">
+                        <field name="display_field_ids" nolabel="1" widget="many2many_tags"/>
+                    </group>
+                    <group string="Meaning / Rules for the AI">
+                        <field name="description" nolabel="1"
+                               placeholder="e.g. Admission leads. mobile = student's mobile number."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ai_model_mapping" model="ir.actions.act_window">
+        <field name="name">Model Mapping</field>
+        <field name="res_model">ai.model.mapping</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

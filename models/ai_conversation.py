@@ -147,10 +147,12 @@ class AiConversation(models.Model):
                 access = entry["access"]
                 ops = [op for op, allowed in access.items() if allowed]
                 field_names = ", ".join(list(entry["fields"].keys())[:45])
-                lines.append(
-                    "- %s (%s) | access: %s | fields: %s"
-                    % (entry["model"], entry["description"], ", ".join(ops), field_names)
+                line = "- %s (%s) | access: %s | fields: %s" % (
+                    entry["model"], entry["description"], ", ".join(ops), field_names,
                 )
+                if entry.get("hint"):
+                    line += " | NOTES: " + entry["hint"]
+                lines.append(line)
             model_context = "\n".join(lines)
         else:
             model_context = "(none matched this request)"

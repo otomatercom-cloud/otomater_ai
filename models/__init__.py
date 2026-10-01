@@ -1,5 +1,6 @@
 from . import provider_adapter
 from . import ai_knowledge_service
+from . import ai_model_mapping
 from . import ai_introspection
 from . import ai_tool_executor
 from . import ai_provider

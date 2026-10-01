@@ -179,6 +179,11 @@ class AiToolExecutor(models.AbstractModel):
     def _default_search_fields(self, Model, max_fields=7):
         """When the AI doesn't name fields, return the most informative stored
         fields so results show real details (name/phone/stage...), not just IDs."""
+        mapping = self.env["ai.model.mapping"].get_active_mappings().get(Model._name)
+        if mapping and mapping.display_field_ids:
+            mapped = [f.name for f in mapping.display_field_ids if f.name in Model._fields]
+            if mapped:
+                return mapped
         preferred = ("name", "phone", "mobile", "email", "email_from", "state", "stage_id",
                      "user_id", "partner_id", "date", "create_date")
         out = [f for f in preferred if f in Model._fields and Model._fields[f].store]

@@ -159,6 +159,18 @@ class AiIntrospection(models.AbstractModel):
                 score = sum(math.log(1 + total / df[t]) for t in hits)
                 scored.append((score, model_name, description))
 
+        # Admin-defined mappings win: if the user typed one of a mapping's
+        # alias words, that model is ALWAYS shortlisted first.
+        boosted = {}
+        for model_name, mapping in self.env["ai.model.mapping"].get_active_mappings().items():
+            if mapping._alias_tokens() & query_tokens:
+                boosted[model_name] = 1000 + len(mapping._alias_tokens() & query_tokens)
+        if boosted:
+            scored = [t for t in scored if t[1] not in boosted]
+            descs = {m: d for m, d, _t in self.get_installed_models()}
+            for model_name, score in boosted.items():
+                scored.append((score, model_name, descs.get(model_name, "")))
+
         scored.sort(key=lambda t: t[0], reverse=True)
         return [(m, d) for _, m, d in scored[:limit]]
 
@@ -235,16 +247,33 @@ class AiIntrospection(models.AbstractModel):
         pinned_names = {m for m, _d in pinned}
         shortlist = pinned + [x for x in shortlist if x[0] not in pinned_names]
         context = []
+        mappings = self.env["ai.model.mapping"].get_active_mappings()
         for model_name, description in shortlist:
             access = self.get_model_access(model_name)
             if not access.get("read"):
                 continue
+            mapping = mappings.get(model_name)
+            schema = self.get_model_schema(model_name, max_fields=60 if mapping else 40)
+            if mapping:
+                # mapped/default/date fields always visible to the AI, listed first
+                wanted = [f.name for f in mapping.display_field_ids] + ["create_date"]
+                if mapping.date_field_id:
+                    wanted.append(mapping.date_field_id.name)
+                all_fields = self.env[model_name].fields_get(wanted)
+                head = {}
+                for fname in wanted:
+                    fdef = all_fields.get(fname)
+                    if fdef:
+                        head[fname] = {"type": fdef.get("type"), "label": fdef.get("string"), "required": False}
+                head.update({k: v for k, v in schema.items() if k not in head})
+                schema = head
             context.append(
                 {
                     "model": model_name,
-                    "description": description,
+                    "description": (mapping.name + " - " if mapping else "") + (description or ""),
                     "access": access,
-                    "fields": self.get_model_schema(model_name),
+                    "fields": schema,
+                    "hint": mapping.describe_for_prompt() if mapping else "",
                 }
             )
         return context

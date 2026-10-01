@@ -1,6 +1,6 @@
 {
     "name": "Otomater AI",
-    "version": "19.0.5.0.0",
+    "version": "19.0.6.0.0",
     "category": "Productivity",
     "summary": "AI Agent Platform for Odoo - conversational assistant, dynamic tools, specialized agents, knowledge base, REST API, Telegram and WhatsApp",
     "description": """
@@ -34,7 +34,7 @@ chat/dashboard UI, audit log, security groups.
 """,
     "author": "Otomater",
     "website": "https://otomater.com",
-    "license": "LGPL-3",
+    "license": "OPL-1",
     "depends": ["base", "mail", "web"],
     "data": [
         "security/security_groups.xml",
@@ -45,6 +45,8 @@ chat/dashboard UI, audit log, security groups.
         "views/ai_conversation_views.xml",
         "views/ai_pending_action_views.xml",
         "views/ai_agent_views.xml",
+        "views/ai_model_mapping_views.xml",
+        "data/ai_model_mapping_data.xml",
         "views/ai_prompt_views.xml",
         "views/ai_scheduled_agent_views.xml",
         "views/ai_knowledge_document_views.xml",
