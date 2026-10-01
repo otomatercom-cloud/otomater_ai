@@ -253,10 +253,10 @@ class AiIntrospection(models.AbstractModel):
             if not access.get("read"):
                 continue
             mapping = mappings.get(model_name)
-            schema = self.get_model_schema(model_name, max_fields=60 if mapping else 40)
+            schema = self.get_model_schema(model_name, max_fields=150 if mapping else 40)
             if mapping:
                 # mapped/default/date fields always visible to the AI, listed first
-                wanted = [f.name for f in mapping.display_field_ids] + ["create_date"]
+                wanted = self.env["ai.model.mapping"]._identity_field_names(model_name) + [f.name for f in mapping.display_field_ids] + ["create_date"]
                 if mapping.date_field_id:
                     wanted.append(mapping.date_field_id.name)
                 all_fields = self.env[model_name].fields_get(wanted)

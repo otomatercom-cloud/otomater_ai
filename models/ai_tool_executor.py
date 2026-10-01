@@ -182,9 +182,13 @@ class AiToolExecutor(models.AbstractModel):
         mapping = self.env["ai.model.mapping"].get_active_mappings().get(Model._name)
         if mapping and mapping.display_field_ids:
             mapped = [f.name for f in mapping.display_field_ids if f.name in Model._fields]
+            for n in self.env["ai.model.mapping"]._identity_field_names(Model._name):
+                if n not in mapped:
+                    mapped.insert(0, n)
             if mapped:
-                return mapped
-        preferred = ("name", "phone", "mobile", "email", "email_from", "state", "stage_id",
+                return mapped[:max_fields + 3]
+        ident = self.env["ai.model.mapping"]._identity_field_names(Model._name) if Model._name in self.env else []
+        preferred = tuple(ident) + ("name", "phone", "mobile", "email", "email_from", "state", "stage_id",
                      "user_id", "partner_id", "date", "create_date")
         out = [f for f in preferred if f in Model._fields and Model._fields[f].store]
         for fname, f in Model._fields.items():

@@ -146,7 +146,10 @@ class AiConversation(models.Model):
             for entry in context:
                 access = entry["access"]
                 ops = [op for op, allowed in access.items() if allowed]
-                field_names = ", ".join(list(entry["fields"].keys())[:45])
+                field_names = ", ".join(
+                    "%s (%s)" % (k, v.get("label") or k)
+                    for k, v in list(entry["fields"].items())[:120]
+                )
                 line = "- %s (%s) | access: %s | fields: %s" % (
                     entry["model"], entry["description"], ", ".join(ops), field_names,
                 )

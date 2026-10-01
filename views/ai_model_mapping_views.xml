@@ -22,6 +22,9 @@
         <field name="model">ai.model.mapping</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="action_autodetect_fields" type="object" string="Auto-detect Fields" class="btn-primary"/>
+                </header>
                 <sheet>
                     <div class="oe_title"><h1><field name="name" placeholder="e.g. Leads"/></h1></div>
                     <group>

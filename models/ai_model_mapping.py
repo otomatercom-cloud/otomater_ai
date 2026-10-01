@@ -86,6 +86,39 @@ class AiModelMapping(models.Model):
         return " ".join(parts)
 
     @api.model
+    def _identity_field_names(self, model_name, limit=6):
+        """Stored char/phone fields whose LABEL says name/mobile/phone/email,
+        so we don't depend on guessing technical field names per client."""
+        Model = self.env[model_name]
+        found = {"name": [], "mobile": [], "phone": [], "email": []}
+        for fname, f in Model._fields.items():
+            if not f.store or f.type != "char" or fname.startswith(("write_", "create_", "__")):
+                continue
+            label = (f.string or "").lower()
+            if any(w in label for w in ("masked", "parent", "guardian", "father", "mother")):
+                continue
+            hay = label + " " + fname.lower()
+            for key in found:
+                if key in hay:
+                    found[key].append(fname)
+                    break
+        order = []
+        for key in ("name", "mobile", "phone", "email"):
+            order += found[key][:2]
+        return order[:limit]
+
+    def action_autodetect_fields(self):
+        for rec in self:
+            names = self._identity_field_names(rec.model_name)
+            extra = [n for n in ("current_status", "lead_quality", "leads_source", "user_id", "create_date")
+                     if n in self.env[rec.model_name]._fields]
+            fields_ = self.env["ir.model.fields"].sudo().search(
+                [("model_id", "=", rec.model_id.id), ("name", "in", names + extra), ("store", "=", True)]
+            )
+            rec.display_field_ids = [(6, 0, fields_.ids)]
+        return True
+
+    @api.model
     def action_seed_defaults(self, *args, **kwargs):
         self._seed_defaults()
         return True
@@ -125,3 +158,7 @@ class AiModelMapping(models.Model):
                 "description": desc,
                 "display_field_ids": [(6, 0, fields_.ids)],
             })
+        # label-based detection of name/mobile/phone/email for every mapping
+        for rec in self.sudo().search([]):
+            if not rec.display_field_ids or len(rec.display_field_ids) < 3:
+                rec.action_autodetect_fields()
