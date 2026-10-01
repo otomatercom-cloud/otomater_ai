@@ -86,9 +86,82 @@ class AiToolExecutor(models.AbstractModel):
     # ---------------------------------------------------------------
     # Read-only tools
     # ---------------------------------------------------------------
+    @api.model
+    def _normalize_domain(self, Model, domain):
+        """Make AI-written domains robust: resolve 'today'/'yesterday' and
+        date-only strings on datetime fields (create_date etc.) into a proper
+        range in the USER's timezone, converted to UTC."""
+        import json as _json
+        from datetime import datetime, timedelta
+        import pytz
+        if isinstance(domain, str):
+            try:
+                domain = _json.loads(domain)
+            except ValueError:
+                return []
+        tz = pytz.timezone(self.env.user.tz or "UTC")
+        today = datetime.now(tz).date()
+
+        def to_utc(d):
+            return tz.localize(datetime(d.year, d.month, d.day)).astimezone(pytz.utc).replace(tzinfo=None)
+
+        def parse_day(v):
+            if not isinstance(v, str):
+                return None
+            v = v.strip().lower()
+            if v in ("today", "now"):
+                return today
+            if v == "yesterday":
+                return today - timedelta(days=1)
+            if len(v) == 10:
+                try:
+                    return datetime.strptime(v, "%Y-%m-%d").date()
+                except ValueError:
+                    return None
+            if len(v) >= 19 and v[10] in " T" and v[11:19] == "00:00:00":
+                try:
+                    return datetime.strptime(v[:10], "%Y-%m-%d").date()
+                except ValueError:
+                    return None
+            return None
+
+        fmt = "%Y-%m-%d %H:%M:%S"
+        out = []
+        for leaf in domain or []:
+            if not (isinstance(leaf, (list, tuple)) and len(leaf) == 3):
+                out.append(leaf)
+                continue
+            fname, op, val = leaf
+            field = Model._fields.get(fname) if isinstance(fname, str) else None
+            if field is None:
+                out.append(leaf)
+                continue
+            day = parse_day(val)
+            if field.type == "datetime" and day:
+                start, end = to_utc(day), to_utc(day + timedelta(days=1))
+                if op in ("=", "=="):
+                    out += ["&", (fname, ">=", start.strftime(fmt)), (fname, "<", end.strftime(fmt))]
+                elif op in (">=", ">") and op == ">=":
+                    out.append((fname, ">=", start.strftime(fmt)))
+                elif op == ">":
+                    out.append((fname, ">=", end.strftime(fmt)))
+                elif op == "<":
+                    out.append((fname, "<", start.strftime(fmt)))
+                elif op == "<=":
+                    out.append((fname, "<", end.strftime(fmt)))
+                else:
+                    out.append(leaf)
+            elif field.type == "date" and day:
+                out.append((fname, op, day.strftime("%Y-%m-%d")))
+            else:
+                out.append(leaf)
+        # '&' implicit between top-level leaves: our inserted '&' groups only the pair
+        # when it sits at the front of a leaf, which is valid Polish notation.
+        return out
+
     def search_records(self, model_name, domain=None, fields=None, limit=20, order=None):
         self._assert_operable_model(model_name)
-        domain = domain or []
+        domain = self._normalize_domain(self.env[model_name], domain or [])
         limit = min(int(limit or 20), 100)
         Model = self.env[model_name]
         records = Model.search(domain, limit=limit, order=order or None)
@@ -121,6 +194,7 @@ class AiToolExecutor(models.AbstractModel):
 
     def count_records(self, model_name, domain=None):
         self._assert_operable_model(model_name)
+        domain = self._normalize_domain(self.env[model_name], domain or [])
         domain = domain or []
         return {"count": self.env[model_name].search_count(domain)}
 

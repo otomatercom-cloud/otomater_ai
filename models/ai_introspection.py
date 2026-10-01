@@ -173,7 +173,7 @@ class AiIntrospection(models.AbstractModel):
 
         priority_types = ("char", "many2one", "selection", "boolean", "date", "datetime", "integer", "float", "text")
         skip_types = ("binary", "html")
-        skip_names = {"__last_update", "write_date", "write_uid", "create_date", "create_uid", "display_name"}
+        skip_names = {"__last_update", "write_date", "write_uid", "create_uid", "display_name"}
 
         items = []
         for fname, fdef in fields_data.items():

@@ -146,7 +146,7 @@ class AiConversation(models.Model):
             for entry in context:
                 access = entry["access"]
                 ops = [op for op, allowed in access.items() if allowed]
-                field_names = ", ".join(list(entry["fields"].keys())[:20])
+                field_names = ", ".join(list(entry["fields"].keys())[:45])
                 lines.append(
                     "- %s (%s) | access: %s | fields: %s"
                     % (entry["model"], entry["description"], ", ".join(ops), field_names)
@@ -158,8 +158,9 @@ class AiConversation(models.Model):
         prompt = PLANNER_SYSTEM_PROMPT.format(persona_block=persona_block, model_context=model_context)
         today = fields.Date.context_today(self)
         return prompt + (
-            "\nToday's date is %s. For 'today' use a domain on create_date such as "
-            "[[\"create_date\", \">=\", \"%s 00:00:00\"]] (user's timezone may shift this slightly). "
+            "\nToday's date is %s. For 'today' / 'created today' use domain "
+            "[[\"create_date\", \"=\", \"%s\"]] (the system converts it to the user's local day). "
+            "Never invent field names; use only the listed fields, and create_date exists on every model. "
             "Words like 'lead', 'leads', 'student' refer to the matching model in the list above.\n"
             % (today, today)
         )
