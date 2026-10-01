@@ -23,6 +23,28 @@ HELP_TEXT = (
     "/chat <message> - or just type anything to chat freely"
 )
 
+def _markdown_to_plain(text):
+    """Telegram/WhatsApp can't render tables: turn markdown tables into
+    one readable block per record and strip ** markers."""
+    out, heads = [], None
+    for line in (text or "").splitlines():
+        st = line.strip()
+        if st.startswith("|") and st.endswith("|"):
+            cells = [c.strip() for c in st.strip("|").split("|")]
+            if all(set(c) <= set("-: ") for c in cells):
+                continue
+            if heads is None:
+                heads = cells
+                continue
+            out.append("")
+            for h, c in zip(heads, cells):
+                out.append("%s: %s" % (h, c) if h != "#" else "#%s" % c)
+        else:
+            heads = None
+            out.append(line)
+    return "\n".join(out).replace("**", "*").strip()
+
+
 COMMAND_PROMPTS = {
     "/report": "Generate a summary report of key metrics.",
     "/leave": "Show me my leave balance and any pending leave requests.",
@@ -88,7 +110,7 @@ def handle_channel_message(channel_user, text):
     except ValueError as exc:
         return str(exc)
 
-    reply = message.content or message.error_message or ""
+    reply = _markdown_to_plain(message.content or message.error_message or "")
     if message.message_type == "confirmation" and message.pending_action_id:
         channel_user.awaiting_pending_action_id = message.pending_action_id.id
         reply = (reply + "\n\nReply YES to confirm or NO to cancel.").strip()

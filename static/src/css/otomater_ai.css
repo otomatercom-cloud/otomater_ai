@@ -209,3 +209,38 @@
 .o_dark_mode .o_otomater_ai_dashboard_note {
     color: #9a9a9a;
 }
+
+/* Rich assistant answers (tables, lists) */
+.o_otomater_ai_rich { white-space: normal; }
+.o_otomater_ai_rich p { margin: 0 0 6px; }
+.o_otomater_ai_rich p:last-child { margin-bottom: 0; }
+.o_otomater_ai_bubble_wide { max-width: 96%; }
+.o_otomater_ai_list { margin: 4px 0 4px 18px; padding: 0; }
+.o_otomater_ai_table_wrap {
+    overflow-x: auto;
+    margin: 8px 0;
+    border: 1px solid #e3e3e3;
+    border-radius: 8px;
+    background: #ffffff;
+}
+.o_otomater_ai_table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.o_otomater_ai_table th {
+    background: #E85D04;
+    color: #ffffff;
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.o_otomater_ai_table td {
+    padding: 7px 12px;
+    border-top: 1px solid #eeeeee;
+    color: #1a1a1a;
+    white-space: nowrap;
+}
+.o_otomater_ai_table tbody tr:nth-child(even) td { background: #faf6f2; }
+.o_otomater_ai_table tbody tr:hover td { background: #fff1e6; }
+.o_dark_mode .o_otomater_ai_table_wrap { background: #1f1f1f; border-color: #3a3a3a; }
+.o_dark_mode .o_otomater_ai_table td { color: #e6e6e6; border-top-color: #333333; }
+.o_dark_mode .o_otomater_ai_table tbody tr:nth-child(even) td { background: #262626; }
+.o_dark_mode .o_otomater_ai_table tbody tr:hover td { background: #33261c; }

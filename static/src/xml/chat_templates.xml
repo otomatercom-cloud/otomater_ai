@@ -17,8 +17,9 @@
                     <div t-if="msg.role === 'assistant' &amp;&amp; msg.agentName" class="o_otomater_ai_agent_label">
                         <t t-esc="msg.agentName"/>
                     </div>
-                    <div t-attf-class="o_otomater_ai_bubble o_otomater_ai_bubble_{{msg.role}} {{msg.status === 'error' ? 'o_otomater_ai_bubble_error' : ''}} {{msg.messageType === 'confirmation' ? 'o_otomater_ai_bubble_confirmation' : ''}}">
-                        <t t-esc="msg.content"/>
+                    <div t-attf-class="o_otomater_ai_bubble o_otomater_ai_bubble_{{msg.role}} {{msg.role === 'assistant' ? 'o_otomater_ai_rich' : ''}} {{hasTable(msg) ? 'o_otomater_ai_bubble_wide' : ''}} {{msg.status === 'error' ? 'o_otomater_ai_bubble_error' : ''}} {{msg.messageType === 'confirmation' ? 'o_otomater_ai_bubble_confirmation' : ''}}">
+                        <t t-if="msg.role === 'assistant'" t-out="renderContent(msg)"/>
+                        <t t-else="" t-esc="msg.content"/>
                         <div t-if="msg.messageType === 'confirmation' &amp;&amp; !msg.resolved" class="o_otomater_ai_confirm_row">
                             <button class="btn btn-sm btn-primary" t-on-click="() => this.approvePending(msg)" t-att-disabled="msg.resolving">
                                 Approve

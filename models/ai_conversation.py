@@ -210,35 +210,84 @@ class AiConversation(models.Model):
             return _("Run server action #%s") % params.get("action_id")
         return plan.get("message") or _("Perform an AI-proposed action.")
 
-    def _format_read_result(self, tool, outcome):
+    def _cell_value(self, Model, fname, value):
+        """Human-friendly cell text for one field value."""
+        if value in (False, None, "", []):
+            return "-"
+        field = Model._fields.get(fname)
+        if isinstance(value, (list, tuple)) and len(value) == 2 and isinstance(value[0], int):
+            return str(value[1])
+        if isinstance(value, list):
+            return ", ".join(str(v) for v in value)
+        if field is not None and field.type == "selection":
+            try:
+                return str(dict(field._description_selection(self.env)).get(value, value))
+            except Exception:
+                return str(value)
+        if field is not None and field.type == "datetime" and value:
+            try:
+                return fields.Datetime.context_timestamp(self, value).strftime("%d %b %Y, %I:%M %p")
+            except Exception:
+                return str(value)
+        if field is not None and field.type == "date" and value:
+            try:
+                return value.strftime("%d %b %Y")
+            except Exception:
+                return str(value)
+        if value is True:
+            return "Yes"
+        if isinstance(value, float):
+            return "%.2f" % value
+        return str(value).replace("|", "/").replace("\n", " ")
+
+    def _model_title(self, model_name):
+        mapping = self.env["ai.model.mapping"].get_active_mappings().get(model_name)
+        if mapping:
+            return mapping.name
+        rec = self.env["ir.model"].sudo().search([("model", "=", model_name)], limit=1)
+        return rec.name if rec else model_name
+
+    def _format_read_result(self, tool, outcome, model_name=None):
         if not outcome["ok"]:
             return _("I couldn't retrieve that: %s") % outcome["error"]
         data = outcome["data"]
+        title = self._model_title(model_name) if model_name and model_name in self.env else ""
         if tool == "count_records":
-            return _("Count: %s") % data.get("count")
+            return _("**%s** - total records: **%s**") % (title or _("Result"), data.get("count"))
         if tool == "read_record":
             return json.dumps(data, default=str, indent=2)[:4000]
         if tool == "search_records":
             records = data.get("records", [])
             if not records:
-                return _("No matching records found.")
-            lines = []
-            for rec in records[:20]:
-                label = rec.get("display_name") or rec.get("name") or ""
-                extras = []
-                for k, v in rec.items():
-                    if k in ("id", "display_name", "name") or v in (False, None, "", []):
-                        continue
-                    if isinstance(v, (list, tuple)) and len(v) == 2 and isinstance(v[0], int):
-                        v = v[1]
-                    extras.append("%s: %s" % (k, v))
-                lines.append(
-                    "- #%s %s%s" % (rec.get("id"), label, (" | " + " | ".join(extras)) if extras else "")
-                )
-            more = ""
-            if data.get("count", 0) > len(records):
-                more = _("\n(showing %s of %s)") % (len(records), data["count"])
-            return "\n".join(lines) + more
+                return _("**%s** - no matching records found.") % (title or _("Result"))
+            Model = self.env[model_name] if model_name and model_name in self.env else None
+            columns = []
+            for rec in records:
+                for k in rec:
+                    if k not in ("id", "display_name") and k not in columns:
+                        columns.append(k)
+            if not columns:
+                columns = ["display_name"]
+            heads = [_("#")]
+            for k in columns:
+                f = Model._fields.get(k) if Model is not None else None
+                heads.append((f.string if f is not None else k.replace("_", " ").title()).replace("|", "/"))
+            rows = []
+            for rec in records[:50]:
+                row = [str(rec.get("id", ""))]
+                for k in columns:
+                    row.append(self._cell_value(Model, k, rec.get(k)) if Model is not None else str(rec.get(k, "-")))
+                rows.append(row)
+            lines = [
+                _("**%s** - %s record(s)") % (title or _("Results"), len(records)),
+                "",
+                "| " + " | ".join(heads) + " |",
+                "|" + "|".join(["---"] * len(heads)) + "|",
+            ]
+            lines += ["| " + " | ".join(r) + " |" for r in rows]
+            if data.get("count", 0) > len(rows):
+                lines += ["", _("Showing %s of %s records.") % (len(rows), data["count"])]
+            return "\n".join(lines)
         if tool == "search_knowledge":
             results = data.get("results", [])
             if not results:
@@ -246,7 +295,7 @@ class AiConversation(models.Model):
             lines = []
             for item in results:
                 lines.append(
-                    "- [%s] (%.0f%% match) %s"
+                    "- **%s** (%.0f%% match): %s"
                     % (item["document"], item["score"] * 100, item["content"][:300])
                 )
             return "\n".join(lines)
@@ -327,8 +376,11 @@ class AiConversation(models.Model):
 
         if action in READ_ONLY_TOOLS:
             outcome = self.env["ai.tool.executor"].execute_tool(action, params)
-            formatted = self._format_read_result(action, outcome)
-            full_content = (reply_text + "\n\n" + formatted).strip() if reply_text else formatted
+            formatted = self._format_read_result(action, outcome, params.get("model_name"))
+            if action in ("search_records", "count_records") and outcome["ok"]:
+                full_content = formatted
+            else:
+                full_content = (reply_text + "\n\n" + formatted).strip() if reply_text else formatted
             assistant_message = self.env["ai.message"].create(
                 {
                     "conversation_id": self.id,

@@ -3,7 +3,60 @@
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { session } from "@web/session";
-import { Component, useState, useRef, onMounted, onWillStart } from "@odoo/owl";
+import { Component, useState, useRef, onMounted, onWillStart, markup } from "@odoo/owl";
+
+function escapeHtml(str) {
+    return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function inlineFmt(escaped) {
+    return escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
+
+/** Safe mini-markdown: paragraphs, **bold**, bullet lists and tables.
+ * Input is HTML-escaped first, so message text can never inject markup. */
+export function renderMarkdown(text) {
+    const lines = String(text ?? "").split("\n");
+    const html = [];
+    let i = 0;
+    while (i < lines.length) {
+        const line = lines[i].trim();
+        if (line.startsWith("|") && line.endsWith("|")) {
+            const rows = [];
+            while (i < lines.length && lines[i].trim().startsWith("|")) {
+                rows.push(lines[i].trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim()));
+                i++;
+            }
+            const sep = rows.length > 1 && rows[1].every((c) => /^:?-+:?$/.test(c));
+            const head = rows[0];
+            const body = rows.slice(sep ? 2 : 1);
+            html.push('<div class="o_otomater_ai_table_wrap"><table class="o_otomater_ai_table"><thead><tr>' +
+                head.map((c) => `<th>${inlineFmt(escapeHtml(c))}</th>`).join("") +
+                "</tr></thead><tbody>" +
+                body.map((r) => "<tr>" + r.map((c) => `<td>${inlineFmt(escapeHtml(c))}</td>`).join("") + "</tr>").join("") +
+                "</tbody></table></div>");
+            continue;
+        }
+        if (line.startsWith("- ")) {
+            const items = [];
+            while (i < lines.length && lines[i].trim().startsWith("- ")) {
+                items.push(`<li>${inlineFmt(escapeHtml(lines[i].trim().slice(2)))}</li>`);
+                i++;
+            }
+            html.push(`<ul class="o_otomater_ai_list">${items.join("")}</ul>`);
+            continue;
+        }
+        if (line) {
+            html.push(`<p>${inlineFmt(escapeHtml(line))}</p>`);
+        }
+        i++;
+    }
+    return markup(html.join(""));
+}
 
 export class OtomaterAiChat extends Component {
     static template = "otomater_ai.ChatComponent";
@@ -44,6 +97,14 @@ export class OtomaterAiChat extends Component {
                 this.inputRef.el.focus();
             }
         });
+    }
+
+    renderContent(msg) {
+        return renderMarkdown(msg.content);
+    }
+
+    hasTable(msg) {
+        return /^\s*\|.*\|\s*$/m.test(msg.content || "");
     }
 
     scrollToBottom() {
