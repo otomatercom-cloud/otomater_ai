@@ -86,7 +86,7 @@ class AiModelMapping(models.Model):
         return " ".join(parts)
 
     @api.model
-    def action_seed_defaults(self):
+    def action_seed_defaults(self, *args, **kwargs):
         self._seed_defaults()
         return True
 
