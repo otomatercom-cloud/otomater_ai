@@ -62,12 +62,19 @@ class AiAgent(models.Model):
     def find_best_agent(self, query):
         """Return the (agent, matched_keywords) best matching `query`, or
         the supervisor/fallback agent if nothing scores above zero."""
-        query_tokens = set(t.lower() for t in _TOKEN_RE.findall(query or ""))
+        def _st(t):
+            t = t.lower()
+            for suf in ("ies", "es", "s"):
+                if len(t) > 3 and t.endswith(suf):
+                    return t[: -len(suf)] + ("y" if suf == "ies" else "")
+            return t
+
+        query_tokens = set(_st(t) for t in _TOKEN_RE.findall(query or ""))
         best_agent = None
         best_score = 0
         best_matches = set()
         for agent in self.search([("active", "=", True), ("is_supervisor", "=", False)]):
-            overlap = query_tokens & agent._keyword_set()
+            overlap = query_tokens & set(_st(k) for k in agent._keyword_set())
             if len(overlap) > best_score:
                 best_score = len(overlap)
                 best_agent = agent

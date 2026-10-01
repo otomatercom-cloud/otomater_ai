@@ -56,6 +56,14 @@ EXCLUDED_EXACT = {
 
 _TOKEN_RE = re.compile(r"[a-zA-Z]+")
 
+_STOPWORDS = {
+    "today", "todays", "yesterday", "created", "create", "number", "mobile", "phone", "name",
+    "show", "share", "give", "list", "tell", "can", "you", "the", "and", "for", "how", "much",
+    "many", "which", "what", "who", "are", "all", "any", "get", "find", "details", "detail",
+    "please", "with", "from", "this", "that", "have", "has", "was", "were", "new", "latest",
+    "total", "count", "record", "data", "info", "information",
+}
+
 
 def _is_excluded(model_name):
     if model_name in EXCLUDED_EXACT:
@@ -126,7 +134,12 @@ class AiIntrospection(models.AbstractModel):
         if not query_tokens:
             return []
 
-        scored = []
+        import math
+        query_tokens -= _STOPWORDS
+        if not query_tokens:
+            return []
+        entries = []
+        df = {}
         for model_name, description, transient in self.get_installed_models():
             if transient:
                 continue
@@ -134,9 +147,17 @@ class AiIntrospection(models.AbstractModel):
                 _stem(t)
                 for t in _TOKEN_RE.findall(model_name.replace(".", " ").replace("_", " "))
             ) | set(_stem(t) for t in _TOKEN_RE.findall(description or ""))
-            overlap = len(query_tokens & haystack)
-            if overlap:
-                scored.append((overlap, model_name, description))
+            entries.append((model_name, description, haystack))
+            for tok in haystack & query_tokens:
+                df[tok] = df.get(tok, 0) + 1
+        total = max(len(entries), 1)
+        scored = []
+        for model_name, description, haystack in entries:
+            hits = haystack & query_tokens
+            if hits:
+                # rare words (e.g. 'lead') weigh far more than common ones
+                score = sum(math.log(1 + total / df[t]) for t in hits)
+                scored.append((score, model_name, description))
 
         scored.sort(key=lambda t: t[0], reverse=True)
         return [(m, d) for _, m, d in scored[:limit]]
