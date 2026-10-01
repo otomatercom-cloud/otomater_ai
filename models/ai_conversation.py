@@ -155,7 +155,14 @@ class AiConversation(models.Model):
         else:
             model_context = "(none matched this request)"
         persona_block = agent.build_persona_prompt() if agent and not agent.is_supervisor else ""
-        return PLANNER_SYSTEM_PROMPT.format(persona_block=persona_block, model_context=model_context)
+        prompt = PLANNER_SYSTEM_PROMPT.format(persona_block=persona_block, model_context=model_context)
+        today = fields.Date.context_today(self)
+        return prompt + (
+            "\nToday's date is %s. For 'today' use a domain on create_date such as "
+            "[[\"create_date\", \">=\", \"%s 00:00:00\"]] (user's timezone may shift this slightly). "
+            "Words like 'lead', 'leads', 'student' refer to the matching model in the list above.\n"
+            % (today, today)
+        )
 
     @staticmethod
     def _parse_plan(raw_content):

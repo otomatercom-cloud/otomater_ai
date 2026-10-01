@@ -63,6 +63,15 @@ def _is_excluded(model_name):
     return any(model_name.startswith(p) for p in EXCLUDED_PREFIXES)
 
 
+def _stem(token):
+    """Tiny stemmer so 'lead' matches 'leads', 'students' matches 'student'."""
+    t = token.lower()
+    for suffix in ("ies", "es", "s"):
+        if len(t) > 3 and t.endswith(suffix):
+            return t[: -len(suffix)] + ("y" if suffix == "ies" else "")
+    return t
+
+
 class AiIntrospection(models.AbstractModel):
     """Namespaced under a real (abstract) Odoo model so it participates in
     the registry cache lifecycle: @tools.ormcache is automatically
@@ -113,7 +122,7 @@ class AiIntrospection(models.AbstractModel):
         user's message and each model's technical name + description.
         No DB access beyond the cached installed-models list - safe to call
         on every chat message."""
-        query_tokens = set(t.lower() for t in _TOKEN_RE.findall(query or ""))
+        query_tokens = set(_stem(t) for t in _TOKEN_RE.findall(query or ""))
         if not query_tokens:
             return []
 
@@ -122,9 +131,9 @@ class AiIntrospection(models.AbstractModel):
             if transient:
                 continue
             haystack = set(
-                t.lower()
+                _stem(t)
                 for t in _TOKEN_RE.findall(model_name.replace(".", " ").replace("_", " "))
-            ) | set(t.lower() for t in _TOKEN_RE.findall(description or ""))
+            ) | set(_stem(t) for t in _TOKEN_RE.findall(description or ""))
             overlap = len(query_tokens & haystack)
             if overlap:
                 scored.append((overlap, model_name, description))
