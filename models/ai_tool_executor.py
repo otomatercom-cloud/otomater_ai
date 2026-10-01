@@ -93,10 +93,31 @@ class AiToolExecutor(models.AbstractModel):
         Model = self.env[model_name]
         records = Model.search(domain, limit=limit, order=order or None)
         if fields:
-            data = records.read(fields)
+            valid = [f for f in fields if f in Model._fields]
+            data = records.read(valid) if valid else []
         else:
-            data = [{"id": r.id, "display_name": r.display_name} for r in records]
+            default_fields = self._default_search_fields(Model)
+            data = records.read(default_fields) if default_fields else []
+            if not data:
+                data = [{"id": r.id, "display_name": r.display_name} for r in records]
         return {"count": len(records), "records": data}
+
+    @api.model
+    def _default_search_fields(self, Model, max_fields=7):
+        """When the AI doesn't name fields, return the most informative stored
+        fields so results show real details (name/phone/stage...), not just IDs."""
+        preferred = ("name", "phone", "mobile", "email", "email_from", "state", "stage_id",
+                     "user_id", "partner_id", "date", "create_date")
+        out = [f for f in preferred if f in Model._fields and Model._fields[f].store]
+        for fname, f in Model._fields.items():
+            if len(out) >= max_fields:
+                break
+            if fname in out or not f.store or f.type not in ("char", "selection", "many2one"):
+                continue
+            if fname.startswith(("write_", "create_", "__")) or fname in ("display_name",):
+                continue
+            out.append(fname)
+        return out[:max_fields]
 
     def count_records(self, model_name, domain=None):
         self._assert_operable_model(model_name)

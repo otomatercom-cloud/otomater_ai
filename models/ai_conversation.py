@@ -48,7 +48,11 @@ Rules:
 4. search_records / count_records / read_record run immediately - "message" should be a
    short framing sentence like "Here's what I found:" since the actual records are appended
    automatically after your message.
-5. Never fabricate record IDs, field values, or search results - only reference data that
+5. For search_records ALWAYS put useful "fields" in params (name, phone, mobile, email,
+   stage/state, assigned user, etc. - only fields listed for that model) so the user sees
+   real details, not just an ID. If the user asks a follow-up ("which are they?", "show
+   details") reuse the model from the previous turn.
+6. Never fabricate record IDs, field values, or search results - only reference data that
    was actually returned to you earlier in this conversation.
 
 Available models for this request:
@@ -107,11 +111,36 @@ class AiConversation(models.Model):
         ]
         return history
 
+    def _recent_tool_models(self, limit=2):
+        """Models used by the latest successful tool calls in this conversation."""
+        logs = self.env["ai.audit.log"].sudo().search(
+            [
+                ("conversation_id", "=", self.id),
+                ("target_model", "!=", False),
+                ("status", "=", "success"),
+            ],
+            order="id desc",
+            limit=10,
+        )
+        models_ = []
+        for log in logs:
+            if log.target_model not in models_:
+                models_.append(log.target_model)
+        return models_[:limit]
+
     def _build_planner_prompt(self, content, agent=None):
         scoring_query = content
+        # Follow-up messages ("which are they?") carry no topic words, so
+        # also score against the previous user messages in this conversation.
+        prev = self.message_ids.filtered(lambda m: m.role == "user")[-3:-1] if self.message_ids else []
+        if prev:
+            scoring_query = "%s %s" % (content, " ".join(m.content or "" for m in prev))
+        pinned_models = self._recent_tool_models()
         if agent and agent.keywords:
             scoring_query = "%s %s" % (content, agent.keywords.replace(",", " "))
-        context = self.env["ai.introspection"].build_tool_context(scoring_query)
+        context = self.env["ai.introspection"].build_tool_context(
+            scoring_query, pinned_models=pinned_models
+        )
         if context:
             lines = []
             for entry in context:
@@ -182,8 +211,17 @@ class AiConversation(models.Model):
                 return _("No matching records found.")
             lines = []
             for rec in records[:20]:
-                label = rec.get("display_name") or rec.get("name") or rec.get("id")
-                lines.append("- #%s %s" % (rec.get("id"), label))
+                label = rec.get("display_name") or rec.get("name") or ""
+                extras = []
+                for k, v in rec.items():
+                    if k in ("id", "display_name", "name") or v in (False, None, "", []):
+                        continue
+                    if isinstance(v, (list, tuple)) and len(v) == 2 and isinstance(v[0], int):
+                        v = v[1]
+                    extras.append("%s: %s" % (k, v))
+                lines.append(
+                    "- #%s %s%s" % (rec.get("id"), label, (" | " + " | ".join(extras)) if extras else "")
+                )
             more = ""
             if data.get("count", 0) > len(records):
                 more = _("\n(showing %s of %s)") % (len(records), data["count"])

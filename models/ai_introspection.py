@@ -190,11 +190,20 @@ class AiIntrospection(models.AbstractModel):
         return schema
 
     @api.model
-    def build_tool_context(self, query, limit=6):
+    def build_tool_context(self, query, limit=6, pinned_models=None):
         """Top-level entry point used by ai.conversation: given the user's
         message, return the shortlisted models with schema + access, ready
         to be serialized into the planning system prompt."""
         shortlist = self.score_models(query, limit=limit)
+        # Models already used earlier in this conversation stay in context so
+        # follow-ups like "which are they?" keep working.
+        pinned = []
+        for m in (pinned_models or []):
+            if m and m in self.env and m not in [x[0] for x in pinned]:
+                desc = dict((n, d) for n, d, _t in self.get_installed_models()).get(m, "")
+                pinned.append((m, desc))
+        pinned_names = {m for m, _d in pinned}
+        shortlist = pinned + [x for x in shortlist if x[0] not in pinned_names]
         context = []
         for model_name, description in shortlist:
             access = self.get_model_access(model_name)
